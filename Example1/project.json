@@ -1,0 +1,6 @@
+{
+  "name": "example-1",
+  "version": "0.0.1",
+  "description": "Sync a several viewports of the same render",
+  "dependencies": {}
+}

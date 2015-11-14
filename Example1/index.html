@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 500px; height: 500px }
+		</style>
+	</head>
+	<body>
+        <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+		<script src="../js/three.min.js"></script>
+		<script>
+            var run=false;
+			var scene = new THREE.Scene();
+			//var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var camera = new THREE.PerspectiveCamera( 45, 1.77, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			//renderer.setScissor( 0, 0, 500, 250 );
+            renderer.setViewport( 0, 0, screen.width, screen.height );
+			document.body.appendChild( renderer.domElement );
+
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			camera.position.z = 5;
+
+			var render = function () {
+				requestAnimationFrame( render );
+                
+                if(run==true){
+				    cube.rotation.x += 0.01;
+				    cube.rotation.y += 0.01;
+                }
+				renderer.render(scene, camera);
+			};
+
+			render();
+            checkBrowserMoves();
+            
+          
+            var socket = io('http://localhost:3000');
+            socket.emit('my other event', { data: 'connection' });
+            socket.on('startAnimation', function (data) {
+                run=true;
+            });
+               
+            
+            var rtime;
+            var timeout = false;
+            var delta = 50;
+            $(window).resize(function() {
+                rtime = new Date();
+                if (timeout === false) {
+                    timeout = true;
+                    setTimeout(resizeend, delta);
+                }
+            });
+
+            function resizeend() {
+                if (new Date() - rtime < delta) {
+                    setTimeout(resizeend, delta);
+                } else {
+                    timeout = false;
+                    renderer.setSize( window.innerWidth, window.innerHeight );
+                    renderer.setViewport( -window.screenX, window.screenY, screen.width, screen.height );
+                }               
+            }
+            var currX = window.screenX;
+            var currY = window.screenY;
+            console.log(window.screenY);
+            function checkBrowserMoves(){
+                if(window.screenX != currX || window.screenY != currY ){
+                    //console.log("hola");
+                    var currX = window.screenX;
+                    var currY = window.screenY;
+                    renderer.setSize( window.innerWidth, window.innerHeight );
+                    renderer.setViewport( -window.screenX, window.screenY, screen.width, screen.height );
+                }
+                setTimeout(function(){ checkBrowserMoves(); }, 50);
+            }
+		</script>
+	</body>
+</html>
